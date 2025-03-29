@@ -21,7 +21,7 @@ jobs:
         uses: docker/setup-buildx-action@v3
 
       - name: Build ARM64 Dockerfile
-        run: docker build -y cljd-flutter-arm64 -f ./docker/arm64/Dockerfile .
+        run: docker build -t cljd-flutter-arm64 -f ./docker/arm64/Dockerfile .
 
       - name: Build Flutter Artifact
         run: |
