@@ -5,14 +5,13 @@
             [bible.widget-helper :as helper]
             [bible.main :as sut]))
 
-(deftest-widget welcome-to-clojure [{:keys [pumpWidget]}]
+(deftest-widget books-header [{:keys [pumpWidget]}]
   (await (pumpWidget (sut/app)))
-  (should-find-one (helper/find-text "Welcome to ClojureDart")))
+  (should-find-one (helper/find-text "Bible")))
 
-(deftest-widget lets-get-coding [{:keys [pumpWidget widget]}]
+(deftest-widget list-names-of-books [{:keys [pumpWidget]}]
   (await (pumpWidget (sut/app)))
-  (let [finder (helper/find-text "Let's get coding!")
-        widget (widget finder)]
-    (should-find-one finder)
-    (is (= 32.0 (helper/font-size widget)))
-    (is (= m.Colors/red (helper/color widget)))))
+  (should-find-one (helper/find-text "Genesis"))
+  (should-find-one (helper/find-text "Exodus"))
+  (should-find-one (helper/find-text "Leviticus"))
+  (should-find-one (helper/find-text "Numbers")))
