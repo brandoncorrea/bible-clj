@@ -1,0 +1,8 @@
+{:paths     ["src"]
+ :deps      {tensegritics/clojuredart {:git/url "https://github.com/tensegritics/ClojureDart.git" :sha "3d132b2b147b8e9a5e77068af69d39f27f2414a6"}}
+ :aliases   {:test  {:extra-paths ["test"]}
+             :spec  {:main-opts ["-m" "cljd.build" "test"]}
+             :cljd  {:main-opts ["-m" "cljd.build"]}
+             :watch {:main-opts ["-m" "cljd.build" "flutter"]}
+             }
+ :cljd/opts {:kind :flutter :main bible.main}}

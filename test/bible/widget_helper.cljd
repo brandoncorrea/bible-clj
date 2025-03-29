@@ -1,0 +1,20 @@
+(ns bible.widget-helper
+  (:use [cljd.test :only [deftest]])
+  (:require ["package:flutter_test/flutter_test.dart" :as t]))
+
+(defn font-size [widget] (.-fontSize (.-style widget)))
+(defn color [widget] (.-color (.-style widget)))
+(defn find-text [text] (t/find.text text))
+
+(defmacro deftest-widget [test-name bindings & body]
+  (let [binding (bindings 0)
+        binding (if (map? binding)
+                  {:flds (first (vals binding))}
+                  binding)]
+    `(deftest ~test-name
+              :runner (t/testWidgets [tester#])
+              (let [^t/WidgetTester ~binding tester#]
+                ~@body))))
+
+(defmacro should-find-one [finder]
+  `(t/expect ~finder t/findsOneWidget))
