@@ -43,7 +43,9 @@ jobs:
         run: clojure -M:cljd compile
 
       - name: Build ARM64
-        run: flutter build linux --release --target-platform linux-arm64
+        run: |
+          flutter config --enable-linux-desktop
+          flutter build linux --release --target-platform linux-arm64
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
