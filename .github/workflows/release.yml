@@ -6,45 +6,52 @@ on:
 
 jobs:
   release:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04-arm
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up QEMU
-        uses: docker/setup-qemu-action@v3
+      - name: Set up JDK 21
+        uses: actions/setup-java@v4
         with:
-          platforms: arm64
+          java-version: 21
+          distribution: 'temurin'
 
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Pull ARM64 Image
+      - name: Install Clojure CLI
         run: |
-          docker pull --platform linux/arm64/v8 arm64v8/debian:bullseye-slim
-          docker inspect arm64v8/debian:bullseye-slim | grep Architecture
+          curl -LO https://github.com/clojure/brew-install/releases/latest/download/linux-install.sh
+          chmod +x linux-install.sh
+          sudo ./linux-install.sh
 
-      - name: Build ARM64 Dockerfile
-        run: DOCKER_BUILDKIT=0 docker build -t cljd-flutter-arm64 -f ./docker/arm64/Dockerfile .
+      - name: Set up Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+          cache-key: "flutter-:os:-:channel:-:version:-:arch:-:hash:"
+          cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
+          pub-cache-key: "flutter-pub:os:-:channel:-:version:-:arch:-:hash:"
+          pub-cache-path: "${{ runner.tool_cache }}/flutter/:channel:-:version:-:arch:"
 
-      - name: Build Flutter Artifact
+      - name: Install ARM64 Dependencies
         run: |
-          docker run --rm -v $(pwd):/app -w /app cljd-flutter-arm64 \
-            /bin/bash -c "
-              source /root/.profile && \
-              clojure -M:cljd compile && \
-              flutter build linux --release --target-platform linux-arm64 && \
-              mkdir -p /app/artifacts && \
-              cp -r /app/build/linux/arm64/release/bundle/* /app/artifacts/"
-          mkdir -p artifacts
-          cp -r build/linux/arm64/release/bundle/* artifacts/
+          sudo apt-get update -y
+          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libblkid-dev liblzma-dev
+
+      - name: Compile ClojureDart
+        run: clojure -M:cljd compile
+
+      - name: Build ARM64
+        run: |
+          flutter config --enable-linux-desktop
+          flutter build linux --release --target-platform linux-arm64
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: bible-arm64
-          path: artifacts/
+          name: arm64
+          path: build/linux/arm64/release/bundle/
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@v2
@@ -54,6 +61,6 @@ jobs:
           body: "Automated release for ARM64"
           draft: false
           prerelease: false
-          files: artifacts/*
+          files: build/linux/arm64/release/bundle/*
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
