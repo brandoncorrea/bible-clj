@@ -41,6 +41,7 @@ jobs:
         run: |
           git clone https://github.com/flutter/flutter.git -b stable
           echo "export PATH=\$PATH:$PWD/flutter/bin" >> $GITHUB_ENV
+          export PATH=$PATH:$PWD/flutter/bin
           flutter --disable-analytics
           flutter precache
           flutter config --no-analytics
