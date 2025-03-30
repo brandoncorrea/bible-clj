@@ -27,7 +27,7 @@ jobs:
       - name: Install ARM64 Dependencies
         uses: awalsh128/cache-apt-pkgs-action@latest
         with:
-          packages: clang cmake ninja-build pkg-config libgtk-3-dev libblkid-dev liblzma-dev
+          packages: clang cmake ninja-build pkg-config libgtk-3-dev libblkid-dev liblzma-dev xz-utils
           version: 1.0
 
       - name: Set up Dart
@@ -59,6 +59,11 @@ jobs:
           flutter config --enable-linux-desktop
           flutter build linux --release --target-platform linux-arm64
 
+     - name: Compress ARM64 Build
+       run: |
+         tar -czf arm64-v${{ github.run_number }}.tar.gz -C build/linux/arm64/release/bundle .
+         ls -lh arm64-v${{ github.run_number }}.tar.gz
+
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -73,6 +78,6 @@ jobs:
           body: "Automated release for ARM64"
           draft: false
           prerelease: false
-          files: build/linux/arm64/release/bundle/**
+          files: arm64-v${{ github.run_number }}.tar.gz
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
