@@ -1,0 +1,36 @@
+(ns bible.translations-test
+  (:use [cljd.test :only [deftest use-fixtures is]]
+        [bible.widget-helper :only [deftest-widget should-find-one]])
+  (:require ["package:flutter/material.dart" :as m]
+            ["package:http/http.dart" :as dart-http]
+            [bible.http :as http]
+            [bible.memory-http :as memory-http]
+            [bible.widget-helper :as helper]
+            [bible.translations :as sut]))
+
+(def translations-uri (Uri.https "bible-api.com" "data"))
+
+(def bible-translations
+  [{"name" "Cherokee New Testament"}
+   {"name" "Bible in Basic English"}
+   {"name" "King James Version"}])
+
+(defn with-mocks [& _]
+  (memory-http/clear!)
+  (reset! http/impl (memory-http/->MemoryHttp))
+  (let [translation-uri translations-uri
+        response        (http/ok {"translations" bible-translations})]
+    (memory-http/respond-with @http/impl :get translation-uri response)))
+
+(use-fixtures :each with-mocks)
+
+(deftest-widget home-header [{:keys [pumpWidget]}]
+  (await (pumpWidget (sut/page)))
+  (should-find-one (helper/find-text "Translations")))
+
+(deftest-widget list-translation-names [{:keys [pumpWidget pump]}]
+  (await (pumpWidget (sut/page)))
+  (await (pump))
+  (should-find-one (helper/find-text "Cherokee New Testament"))
+  (should-find-one (helper/find-text "Bible in Basic English"))
+  (should-find-one (helper/find-text "King James Version")))

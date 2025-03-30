@@ -1,0 +1,21 @@
+(ns bible.http
+  (:require ["package:http/http.dart" :as dart-http]
+            ["dart:convert" :as dc]
+            [bible.core :as core]))
+
+(defprotocol IHttp
+  (-get! [this uri] "Makes an HTTP request, returning a Future<Response>"))
+
+(def impl (atom nil))
+
+(defn get! [host uri callback]
+  (core/with-future [response (-get! @impl (Uri.https host uri))]
+    (callback (core/<-json (.-body response)))))
+
+(defn get-ref! [host uri]
+  (let [atm (atom nil)]
+    (get! host uri #(reset! atm %))
+    atm))
+
+(defn ->response [body status] (dart-http/Response body status))
+(defn ok [body] (->response (core/->json body) 200))

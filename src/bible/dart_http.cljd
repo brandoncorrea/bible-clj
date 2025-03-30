@@ -1,0 +1,7 @@
+(ns bible.dart-http
+  (:require ["package:http/http.dart" :as dart-http]
+            [bible.http :as http]))
+
+(deftype DartHttp []
+  http/IHttp
+  (-get! [_this uri] (dart-http/get uri)))

@@ -1,0 +1,11 @@
+(ns bible.core
+  (:require ["package:http/http.dart" :as dart-http]
+            ["dart:convert" :as dc]))
+
+(defmacro with-future [binding & body]
+  (assert (= 2 (count binding)))
+  `(let [^Future future# ~(binding 1)]
+     (.then future# (fn [^dart-http/Response ~(binding 0)] ~@body))))
+
+(defn <-json [json] (dc/jsonDecode json))
+(defn ->json [data] (dc/jsonEncode data))

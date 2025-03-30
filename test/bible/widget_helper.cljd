@@ -9,7 +9,7 @@
 (defmacro deftest-widget [test-name bindings & body]
   (let [binding (bindings 0)
         binding (if (map? binding)
-                  {:flds (first (vals binding))}
+                  (assoc (dissoc binding :keys) :flds (:keys binding))
                   binding)]
     `(deftest ~test-name
               :runner (t/testWidgets [tester#])

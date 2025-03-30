@@ -1,0 +1,18 @@
+(ns bible.forms
+  (:require ["package:flutter/material.dart" :as m]))
+
+(defmacro list-view [binding & body]
+  (assert (= 2 (count binding)))
+  `(let [items# ~(binding 1)]
+     (m/ListView.builder
+       .itemCount (count items#)
+       .itemBuilder (fn [_context# index#]
+                      (let [~(binding 0) (get items# index#)]
+                        ~@body)))))
+
+(def pink m.Colors/pink)
+
+(defn list-tile [title] (m/ListTile .title title))
+(defn app-bar [title] (m/AppBar .title title))
+(defn text [content] (m/Text content))
+(defn theme-data [primary-swatch] (m/ThemeData .primarySwatch primary-swatch))

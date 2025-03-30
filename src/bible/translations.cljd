@@ -1,0 +1,17 @@
+(ns bible.translations
+  (:require ["package:flutter/material.dart" :as m]
+            [bible.forms :as forms]
+            [bible.http :as http]
+            [cljd.flutter :as f]))
+
+(defn page []
+  (f/widget
+    :watch [{:strs [translations]} (http/get-ref! "bible-api.com" "data")]
+    (m/MaterialApp
+      .title "Welcome to Flutter"
+      .theme (forms/theme-data forms/pink))
+    .home
+    (m/Scaffold .appBar (forms/app-bar (forms/text "Translations")))
+    .body
+    (forms/list-view [translation translations]
+      (forms/list-tile (forms/text (get translation "name"))))))
