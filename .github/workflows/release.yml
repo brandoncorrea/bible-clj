@@ -33,14 +33,14 @@ jobs:
         run: |
           curl -O https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-arm64-release.zip
           sudo unzip dartsdk-linux-arm64-release.zip -d /usr/local/
-          sudo echo "export PATH=\"\$PATH:/usr/local/dart-sdk/bin\"" >> /root/.profile
+          echo "export PATH=\"\$PATH:/usr/local/dart-sdk/bin\"" >> ~/.profile
           rm dartsdk-linux-arm64-release.zip
 
       - name: Set up Flutter
         run: |
           sudo git clone https://github.com/flutter/flutter.git -b stable /usr/local/flutter
-          sudo echo "export PATH=\"\$PATH:/usr/local/flutter/bin\"" >> /root/.profile
-          source /root/.profile
+          echo "export PATH=\"\$PATH:/usr/local/flutter/bin\"" >> ~/.profile
+          source ~/.profile
           flutter --disable-analytics
           flutter precache
           flutter config --no-analytics
