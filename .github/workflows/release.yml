@@ -25,9 +25,10 @@ jobs:
           sudo ./linux-install.sh
 
       - name: Install ARM64 Dependencies
-        run: |
-          sudo apt-get update -y
-          sudo apt-get install -y clang cmake ninja-build pkg-config libgtk-3-dev libblkid-dev liblzma-dev
+        uses: awalsh128/cache-apt-pkgs-action@latest
+        with:
+          packages: clang cmake ninja-build pkg-config libgtk-3-dev libblkid-dev liblzma-dev
+          version: 1.0
 
       - name: Set up Dart
         run: |
