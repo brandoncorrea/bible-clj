@@ -32,13 +32,13 @@ jobs:
       - name: Set up Dart
         run: |
           curl -O https://storage.googleapis.com/dart-archive/channels/stable/release/latest/sdk/dartsdk-linux-arm64-release.zip
-          unzip dartsdk-linux-arm64-release.zip -d /usr/local/
+          sudo unzip dartsdk-linux-arm64-release.zip -d /usr/local/
           echo "export PATH=\"\$PATH:/usr/local/dart-sdk/bin\"" >> /root/.profile
           rm dartsdk-linux-arm64-release.zip
 
       - name: Set up Flutter
         run: |
-          git clone https://github.com/flutter/flutter.git -b stable /usr/local/flutter
+          sudo git clone https://github.com/flutter/flutter.git -b stable /usr/local/flutter
           echo "export PATH=\"\$PATH:/usr/local/flutter/bin\"" >> /root/.profile
           source /root/.profile
           flutter --disable-analytics
