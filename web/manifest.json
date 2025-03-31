@@ -1,6 +1,6 @@
 {
-    "name": "cljd_bible_clj",
-    "short_name": "cljd_bible_clj",
+    "name": "Bible",
+    "short_name": "Bible",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
