@@ -59,10 +59,10 @@ jobs:
           flutter config --enable-linux-desktop
           flutter build linux --release --target-platform linux-arm64
 
-     - name: Compress ARM64 Build
-       run: |
-         tar -czf arm64-v${{ github.run_number }}.tar.gz -C build/linux/arm64/release/bundle .
-         ls -lh arm64-v${{ github.run_number }}.tar.gz
+      - name: Compress ARM64 Build
+        run: |
+          tar -czf arm64-v${{ github.run_number }}.tar.gz -C build/linux/arm64/release/bundle .
+          ls -lh arm64-v${{ github.run_number }}.tar.gz
 
       - name: Archive build artifacts
         uses: actions/upload-artifact@v4
