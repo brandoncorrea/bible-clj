@@ -4,17 +4,17 @@
             [bible.core :as core]))
 
 (defprotocol IHttp
-  (-get! [this uri] "Makes an HTTP request, returning a Future<Response>"))
+  (-get! [this url] "Makes an HTTP request, returning a Future<Response>"))
 
 (def impl (atom nil))
 
-(defn get! [host uri callback]
-  (core/with-future [response (-get! @impl (Uri.https host uri))]
+(defn get! [url callback]
+  (core/with-future [response (-get! @impl url)]
     (callback (core/<-json (.-body response)))))
 
-(defn get-ref! [host uri]
+(defn get-ref! [url]
   (let [atm (atom nil)]
-    (get! host uri #(reset! atm %))
+    (get! url #(reset! atm %))
     atm))
 
 (defn ->response [body status] (dart-http/Response body status))

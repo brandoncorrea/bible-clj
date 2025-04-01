@@ -1,5 +1,6 @@
 (ns bible.forms
-  (:require ["package:flutter/material.dart" :as m]))
+  (:require ["package:flutter/material.dart" :as m]
+            [cljd.flutter :as f]))
 
 (defmacro list-view [binding & body]
   (assert (= 2 (count binding)))
@@ -10,9 +11,14 @@
                       (let [~(binding 0) (get items# index#)]
                         ~@body)))))
 
-(def pink m.Colors/pink)
+(defn list-tile [{:keys [on-tap]} title]
+  (m/ListTile .title title .onTap on-tap))
 
-(defn list-tile [title] (m/ListTile .title title))
 (defn app-bar [title] (m/AppBar .title title))
 (defn text [content] (m/Text content))
-(defn theme-data [primary-swatch] (m/ThemeData .primarySwatch primary-swatch))
+
+(defmacro scaffold [app-bar body]
+  `(m/Scaffold .appBar ~app-bar .body ~body))
+
+(defmacro material-app [home]
+  `(f/widget (m/MaterialApp) .home ~home))

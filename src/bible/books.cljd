@@ -1,0 +1,16 @@
+(ns bible.books
+  (:require ["package:flutter/material.dart" :as m]
+            [bible.forms :as forms]
+            [bible.http :as http]
+            [cljd.flutter :as f]))
+
+(defn page [{:strs [name url]}]
+  (f/widget
+    :watch [{:strs [books]} (http/get-ref! url)]
+    :context context
+    (forms/scaffold
+      (forms/app-bar (forms/text name))
+      (forms/list-view [book books]
+        (forms/list-tile
+          {:on-tap (fn [])}
+          (forms/text (get book "name")))))))

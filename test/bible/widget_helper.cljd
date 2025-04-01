@@ -1,9 +1,9 @@
 (ns bible.widget-helper
   (:use [cljd.test :only [deftest]])
-  (:require ["package:flutter_test/flutter_test.dart" :as t]))
+  (:require ["package:flutter/material.dart" :as m]
+            ["package:flutter_test/flutter_test.dart" :as t]
+            [cljd.flutter :as f]))
 
-(defn font-size [widget] (.-fontSize (.-style widget)))
-(defn color [widget] (.-color (.-style widget)))
 (defn find-text [text] (t/find.text text))
 
 (defmacro deftest-widget [test-name bindings & body]
@@ -16,5 +16,16 @@
               (let [^t/WidgetTester ~binding tester#]
                 ~@body))))
 
+(defmacro should-find-n [n finder]
+  `(t/expect ~finder (t/findsNWidgets ~n)))
+
 (defmacro should-find-one [finder]
   `(t/expect ~finder t/findsOneWidget))
+
+(defmacro pump
+  ([widget-tester widget]
+   `(await (.pumpWidget ~widget-tester (f/widget (m/MaterialApp) .home ~widget))))
+  ([widget-tester] `(await (.pump ~widget-tester))))
+
+(defmacro tap [widget-tester thing]
+  `(await (.tap ~widget-tester ~thing)))

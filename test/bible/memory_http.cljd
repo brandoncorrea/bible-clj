@@ -5,15 +5,15 @@
 (defn clear! [] (reset! responses {}))
 
 (defprotocol IMockHttp
-  (respond-with [_this _method _uri _response] "Responds to requests made to the uri using method with response."))
+  (respond-with [_this _method _url _response] "Responds to requests made to the URL using method with response."))
 
 (deftype MemoryHttp []
   http/IHttp
-  (-get! [_this uri]
-    (let [response (first (get-in @responses [:get uri]))]
-      (swap! responses update-in [:get uri] rest)
+  (-get! [_this url]
+    (let [response (first (get-in @responses [:get url]))]
+      (swap! responses update-in [:get url] rest)
       (Future/value response)))
 
   IMockHttp
-  (respond-with [_this method uri response]
-    (swap! responses update-in [method uri] conj response)))
+  (respond-with [_this method url response]
+    (swap! responses update-in [method url] conj response)))

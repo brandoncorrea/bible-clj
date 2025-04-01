@@ -1,36 +1,60 @@
 (ns bible.translations-test
   (:use [cljd.test :only [deftest use-fixtures is]]
-        [bible.widget-helper :only [deftest-widget should-find-one]])
+        [bible.widget-helper :only [deftest-widget pump tap should-find-one should-find-n]])
   (:require ["package:flutter/material.dart" :as m]
             ["package:http/http.dart" :as dart-http]
             [bible.http :as http]
             [bible.memory-http :as memory-http]
             [bible.widget-helper :as helper]
-            [bible.translations :as sut]))
+            [bible.translations :as sut]
+            [cljd.flutter :as f]))
 
-(def translations-uri (Uri.https "bible-api.com" "data"))
+(def translations-url "https://bible-api.com/data")
 
 (def bible-translations
-  [{"name" "Cherokee New Testament"}
-   {"name" "Bible in Basic English"}
-   {"name" "King James Version"}])
+  [{"name" "Cherokee New Testament"
+    "url"  "https://bible-api.com/data/cherokee"}
+   {"name" "Bible in Basic English"
+    "url"  "https://bible-api.com/data/bbe"}
+   {"name" "King James Version"
+    "url"  "https://bible-api.com/data/kjv"}])
+
+(def books
+  [{"name" "Genesis"}
+   {"name" "Exodus"}
+   {"name" "Leviticus"}])
 
 (defn with-mocks [& _]
   (memory-http/clear!)
   (reset! http/impl (memory-http/->MemoryHttp))
-  (let [translation-uri translations-uri
-        response        (http/ok {"translations" bible-translations})]
-    (memory-http/respond-with @http/impl :get translation-uri response)))
+  (let [response (http/ok {"translations" bible-translations})]
+    (memory-http/respond-with @http/impl :get translations-url response))
+  (let [response (http/ok {"books" books})]
+    (memory-http/respond-with @http/impl :get "https://bible-api.com/data/kjv" response)))
 
 (use-fixtures :each with-mocks)
 
-(deftest-widget home-header [{:keys [pumpWidget]}]
-  (await (pumpWidget (sut/page)))
+(deftest-widget home-header [tester]
+  (pump tester (sut/page))
   (should-find-one (helper/find-text "Translations")))
 
-(deftest-widget list-translation-names [{:keys [pumpWidget pump]}]
-  (await (pumpWidget (sut/page)))
-  (await (pump))
+(deftest-widget list-translation-names [tester]
+  (pump tester (sut/page))
+  (pump tester)
   (should-find-one (helper/find-text "Cherokee New Testament"))
   (should-find-one (helper/find-text "Bible in Basic English"))
   (should-find-one (helper/find-text "King James Version")))
+
+(deftest-widget list-book-names [tester]
+  (pump tester (sut/page))
+  (pump tester)
+  (let [kjv (helper/find-text "King James Version")]
+    (tap tester kjv)
+    (pump tester)
+    (pump tester))
+  (should-find-one (helper/find-text "Cherokee New Testament"))
+  (should-find-one (helper/find-text "Bible in Basic English"))
+  (should-find-n 2 (helper/find-text "King James Version"))
+  (should-find-one (helper/find-text "Genesis"))
+  (should-find-one (helper/find-text "Exodus"))
+  (should-find-one (helper/find-text "Leviticus")))

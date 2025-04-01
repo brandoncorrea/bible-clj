@@ -4,4 +4,4 @@
 
 (deftype DartHttp []
   http/IHttp
-  (-get! [_this uri] (dart-http/get uri)))
+  (-get! [_this url] (dart-http/get (Uri.parse url))))

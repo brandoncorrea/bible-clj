@@ -1,0 +1,7 @@
+(ns bible.nav
+  (:require ["package:flutter/material.dart" :as m]))
+
+(defn push [context build-page]
+  (m/Navigator.push
+    context
+    (m/MaterialPageRoute .builder build-page)))

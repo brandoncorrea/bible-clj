@@ -2,16 +2,17 @@
   (:require ["package:flutter/material.dart" :as m]
             [bible.forms :as forms]
             [bible.http :as http]
-            [cljd.flutter :as f]))
+            [cljd.flutter :as f]
+            [bible.books :as books]
+            [bible.nav :as nav]))
 
 (defn page []
   (f/widget
-    :watch [{:strs [translations]} (http/get-ref! "bible-api.com" "data")]
-    (m/MaterialApp
-      .title "Welcome to Flutter"
-      .theme (forms/theme-data forms/pink))
-    .home
-    (m/Scaffold .appBar (forms/app-bar (forms/text "Translations")))
-    .body
-    (forms/list-view [translation translations]
-      (forms/list-tile (forms/text (get translation "name"))))))
+    :watch [{:strs [translations]} (http/get-ref! "https://bible-api.com/data")]
+    :context context
+    (forms/scaffold
+      (forms/app-bar (forms/text "Translations"))
+      (forms/list-view [translation translations]
+        (forms/list-tile
+          {:on-tap #(nav/push context (fn [_] (books/page translation)))}
+          (forms/text (get translation "name")))))))

@@ -1,9 +1,12 @@
 (ns bible.main
-  (:require [bible.http :as http]
+  (:require [bible.forms :as forms]
+            [bible.http :as http]
             [bible.dart-http :as dart-http]
             [bible.translations :as translations]
             [cljd.flutter :as f]))
 
 (defn main []
   (reset! http/impl (dart-http/->DartHttp))
-  (f/run (translations/page)))
+  (f/run
+    (forms/material-app
+      (translations/page))))
