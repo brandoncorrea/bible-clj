@@ -4,13 +4,46 @@
             [bible.http :as http]
             [cljd.flutter :as f]))
 
-(defn page [{:strs [name url]}]
+(defn- toggle! [atm v]
+  (if (= @atm v)
+    (reset! atm nil)
+    (reset! atm v)))
+
+(defn- book-list-item [active-book-atm {:strs [id name]}]
+  (forms/list-tile {:on-tap #(toggle! active-book-atm id)}
+    (forms/text name)))
+
+(defn- chapter-grid [book]
   (f/widget
-    :watch [{:strs [books]} (http/get-ref! url)]
-    :context context
-    (forms/scaffold
-      (forms/app-bar (forms/text name))
-      (forms/list-view [book books]
-        (forms/list-tile
-          {:on-tap (fn [])}
-          (forms/text (get book "name")))))))
+    :watch [{:strs [chapters]} (http/get-ref! (get book "url"))]
+    (forms/constrained-box {:min-height 10 :max-height 200}
+      (forms/container {:padding 10}
+        (m/GridView.builder
+          .shrinkWrap true
+          .gridDelegate
+          (m/SliverGridDelegateWithMaxCrossAxisExtent
+            .maxCrossAxisExtent 50
+            .crossAxisSpacing 8
+            .mainAxisSpacing 8)
+          .itemBuilder
+          (fn [_context index]
+            (when-let [chapter (get chapters index)]
+              (forms/container {:border-color m/Colors.black :border-width 1}
+                (m/Center .child (forms/text (str (get chapter "chapter"))))))))))))
+
+(defn- book-item [active-book-atm {:strs [id] :as book}]
+  (forms/column
+    (cond-> [(book-list-item active-book-atm book)]
+            (= id @active-book-atm)
+            (conj (chapter-grid book)))))
+
+(defn page [{:strs [name url]}]
+  (let [active-book-atm (atom nil)]
+    (f/widget
+      :watch [{:strs [books]} (http/get-ref! url)
+              active-book active-book-atm]
+      :context context
+      (forms/scaffold
+        (forms/app-bar (forms/text name))
+        (forms/list-view [book books]
+          (book-item active-book-atm book))))))

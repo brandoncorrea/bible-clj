@@ -22,3 +22,24 @@
 
 (defmacro material-app [home]
   `(f/widget (m/MaterialApp) .home ~home))
+
+(defn constrained-box [{:keys [min-height max-height]} child]
+  (m/ConstrainedBox
+    .constraints (m/BoxConstraints .minHeight min-height .maxHeight max-height)
+    .child child))
+
+(defn column [children]
+  (m/Column .children children))
+
+(defn box-decoration [{:keys [border-color border-width]}]
+  (when (or border-color border-width)
+    (m/BoxDecoration
+      .border (m/Border.all
+                .color border-color
+                .width border-width))))
+
+(defn container [{:keys [padding] :as options} child]
+  (m/Container
+    .padding (when padding (m/EdgeInsets.all padding))
+    .decoration (box-decoration options)
+    .child child))

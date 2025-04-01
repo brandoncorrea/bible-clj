@@ -6,10 +6,7 @@
             [bible.http :as http]
             [bible.memory-http :as memory-http]
             [bible.widget-helper :as helper]
-            [bible.translations :as sut]
-            [cljd.flutter :as f]))
-
-(def translations-url "https://bible-api.com/data")
+            [bible.translations :as sut]))
 
 (def bible-translations
   [{"name" "Cherokee New Testament"
@@ -20,17 +17,30 @@
     "url"  "https://bible-api.com/data/kjv"}])
 
 (def books
-  [{"name" "Genesis"}
-   {"name" "Exodus"}
-   {"name" "Leviticus"}])
+  [{"id"   "GEN"
+    "name" "Genesis"
+    "url"  "https://bible-api.com/data/kjv/GEN"}
+   {"id"   "EXO"
+    "name" "Exodus"
+    "url"  "https://bible-api.com/data/kjv/EXO"}
+   {"id"   "LEV"
+    "name" "Leviticus"
+    "url"  "https://bible-api.com/data/kjv/LEV"}])
+
+(def chapters
+  [{"chapter" 1}
+   {"chapter" 2}
+   {"chapter" 3}])
 
 (defn with-mocks [& _]
   (memory-http/clear!)
   (reset! http/impl (memory-http/->MemoryHttp))
   (let [response (http/ok {"translations" bible-translations})]
-    (memory-http/respond-with @http/impl :get translations-url response))
+    (memory-http/respond-with @http/impl :get "https://bible-api.com/data" response))
   (let [response (http/ok {"books" books})]
-    (memory-http/respond-with @http/impl :get "https://bible-api.com/data/kjv" response)))
+    (memory-http/respond-with @http/impl :get "https://bible-api.com/data/kjv" response))
+  (let [response (http/ok {"chapters" chapters})]
+    (memory-http/respond-with @http/impl :get "https://bible-api.com/data/kjv/GEN" response)))
 
 (use-fixtures :each with-mocks)
 
@@ -58,3 +68,16 @@
   (should-find-one (helper/find-text "Genesis"))
   (should-find-one (helper/find-text "Exodus"))
   (should-find-one (helper/find-text "Leviticus")))
+
+(deftest-widget list-book-chapters [tester]
+  (pump tester (sut/page))
+  (pump tester)
+  (tap tester (helper/find-text "King James Version"))
+  (pump tester)
+  (pump tester)
+  (tap tester (helper/find-text "Genesis"))
+  (pump tester)
+  (pump tester)
+  (should-find-one (helper/find-text "1"))
+  (should-find-one (helper/find-text "2"))
+  (should-find-one (helper/find-text "3")))
